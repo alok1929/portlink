@@ -1,0 +1,131 @@
+"use client"
+
+import React from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { School, Mail, Briefcase, Lightbulb, Music, HelpCircle, Github, Linkedin, BookOpen, GitBranch } from "lucide-react"
+import { useData } from "../DataContext" // Ensure this import is correct
+
+export default function Portfolio() {
+  const { data } = useData()
+
+  if (!data) {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <p className="text-xl text-gray-600">No data available. Please upload a resume first.</p>
+    </div>
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-8 text-black">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <header className="text-center bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-4xl font-bold mb-2">{data.Name?.[0] || "Name Not Provided"}</h1>
+          <div className="flex items-center justify-center gap-4 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              <span>{data.Email?.[0] || "Email Not Provided"}</span>
+            </div>
+            {data?.GitHub?.[0] && data.GitHub[0] !== "Not provided" && (
+              <div className="flex items-center gap-2">
+                <GitBranch className="w-4 h-4" />
+                <a href={data.GitHub[0]} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  GitHub
+                </a>
+              </div>
+            )}
+
+            {data?.Linkedin?.[0] && data.Linkedin[0] !== "Not provided" && (
+              <div className="flex items-center gap-2">
+                <Linkedin className="w-4 h-4" />
+                <a href={data.LinkedIn[0]} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  LinkedIn
+                </a>
+              </div>
+            )}
+
+          </div>
+        </header>
+
+        <section className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <School className="w-6 h-6" />
+            Education
+          </h2>
+          {data.Education?.map((edu, index) => (
+            <Card key={index} className="mb-4 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <School className="w-8 h-8 text-primary" />
+                <CardTitle>{edu}</CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
+        </section>
+
+        <section className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <Briefcase className="w-6 h-6" />
+            Professional Experience
+          </h2>
+          {data["Professional Experience"]?.map((exp, index) => (
+            <Card key={index} className="mb-4 transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle>{exp}</CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
+        </section>
+
+        <section className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <Lightbulb className="w-6 h-6" />
+            Projects
+          </h2>
+          {data.Projects?.map((project, index) => (
+            <Card key={index} className="mb-4 transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle>{project}</CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
+        </section>
+
+        {data.Skills && (
+          <section className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <Music className="w-6 h-6" />
+              Skills
+            </h2>
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardContent className="pt-6">
+                <ul className="list-disc pl-5 space-y-2">
+                  {data.Skills.map((skill, index) => (
+                    <li key={index}>{skill}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
+        {data.Questions && (
+          <section className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <HelpCircle className="w-6 h-6" />
+              Frequently Asked Questions
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              {data.Questions.map((question, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger>{question}</AccordionTrigger>
+                  <AccordionContent>
+                    {data.Answers && data.Answers[index] ? data.Answers[index] : "Answer not provided. Please update your resume with answers to these questions."}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </section>
+        )}
+      </div>
+    </div>
+  )
+}

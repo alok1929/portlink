@@ -1,0 +1,118 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Github, Linkedin, Mail, Briefcase, GraduationCap, Lightbulb, Music } from "lucide-react"
+
+export default function BentoPortfolio() {
+  return (
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Profile Card */}
+          <Card className="md:col-span-2 row-span-2">
+            <CardContent className="flex flex-col items-center justify-center h-full p-6">
+              <Avatar className="w-24 h-24 mb-4">
+                <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Nethra Shankar" />
+                <AvatarFallback>NS</AvatarFallback>
+              </Avatar>
+              <h1 className="text-3xl font-bold mb-2">Nethra Shankar</h1>
+              <p className="text-muted-foreground mb-4">Social Media Manager & Psychology Student</p>
+              <div className="flex space-x-4">
+                <a href="#" className="text-gray-600 hover:text-gray-900">
+                  <Github className="w-6 h-6" />
+                </a>
+                <a href="#" className="text-gray-600 hover:text-gray-900">
+                  <Linkedin className="w-6 h-6" />
+                </a>
+                <a href="mailto:nethra.shankar2406@gmail.com" className="text-gray-600 hover:text-gray-900">
+                  <Mail className="w-6 h-6" />
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Education Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <GraduationCap className="w-5 h-5 mr-2" />
+                Education
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-medium">Mount Carmel College, Bangalore</p>
+              <p className="text-sm text-muted-foreground">BA in Psychology, English Literature (2021-2024)</p>
+            </CardContent>
+          </Card>
+
+          {/* Skills Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Lightbulb className="w-5 h-5 mr-2" />
+                Skills
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                <Badge>Social Media Management</Badge>
+                <Badge>Content Creation</Badge>
+                <Badge>Analytics</Badge>
+                <Badge>Bharatnatyam Dance</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Experience Card */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Recent Experience
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                <li>
+                  <p className="font-medium">Social Media Manager</p>
+                  <p className="text-sm text-muted-foreground">Private practice under Divya Bhatia and Namratha Dinesh (Feb 2024 - Jun 2024)</p>
+                </li>
+                <li>
+                  <p className="font-medium">Social Media Marketing Intern</p>
+                  <p className="text-sm text-muted-foreground">Heart It Out (Apr 2023 - Aug 2023)</p>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Projects Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Lightbulb className="w-5 h-5 mr-2" />
+                Projects
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-medium">Crowdfunding Campaign</p>
+              <p className="text-sm text-muted-foreground">Raised over Rs. 40,000/- for migrant workers during Covid-19</p>
+            </CardContent>
+          </Card>
+
+          {/* Bharatnatyam Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Music className="w-5 h-5 mr-2" />
+                Bharatnatyam
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">11 years of experience, passed 5 exams with first class, performed at various levels</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
