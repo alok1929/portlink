@@ -91,6 +91,7 @@ export default function ResumeUpload() {
         )}
 
         {uploadSuccess && (
+
           <Alert variant="default" className="mb-4 text-black bg-green-100 border-green-400">
             <AlertTitle>Success</AlertTitle>
             <AlertDescription>Resume uploaded successfully! Redirecting to portfolio...</AlertDescription>
