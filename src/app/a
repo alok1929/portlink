@@ -6,34 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useData } from "./DataContext";
 import { useRouter } from "next/navigation";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-
 
 interface ExtractedInfo {
-  Name: string;
-  Email: string;
-  GitHub: string;
-  LinkedIn: string;
-  Education: string[];
-  "Professional Experience": Array<{
-    role: string;
-    description: string;
-    duration: string;
-  }>;
-  Projects: Array<{
-    project_name: string;
-    description: string;
-    technologies: string[];
-  }>;
-  "Questions and Answers": Array<{
-    question: string;
-    answer: string;
-  }>;
+  Name: string[];
+  Email: string[];
+  GitHub: string[];
+  LinkedIn: string[];
+  Education: { degree: string }[];
+  ProfessionalExperience: { [role: string]: { description: string; duration: string }[] };
+  Projects: { project_name: string; description: string; technologies: string }[];
 }
 
 export default function ResumeUpload() {
@@ -80,6 +61,7 @@ export default function ResumeUpload() {
     setExtractedInfo(null);
 
     try {
+      // Adjust post URL to point to your Flask backend
       const uploadResponse = await axios.post("http://localhost:5000/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -89,6 +71,7 @@ export default function ResumeUpload() {
       if (uploadResponse.status === 200) {
         setUploadSuccess(true);
 
+        // Fetch extracted information from Firestore
         const fetchResponse = await axios.get(`http://localhost:5000/resume/${username}`);
 
         const extractedData: ExtractedInfo = fetchResponse.data.extracted_info;
@@ -96,9 +79,9 @@ export default function ResumeUpload() {
         setData(extractedData);
 
         console.log("Extracted Data:", extractedData);
-
-        // Redirect to portfolio page after a short delay
-
+        setTimeout(() => {
+          router.push(`/portfolio/${username}`);
+        }, 2000);
       } else {
         throw new Error("Error occurred during file upload");
       }
@@ -158,68 +141,69 @@ export default function ResumeUpload() {
           </Alert>
         )}
 
+        {/* Display Extracted Resume Information */}
         {extractedInfo && (
           <div className="mt-8 bg-gray-50 p-4 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Extracted Resume Information</h2>
             <div className="mb-4">
               <h3 className="font-bold">Name:</h3>
-              <p>{extractedInfo.Name}</p>
+              <p>{extractedInfo.Name?.[0] || "Not available"}</p>
             </div>
             <div className="mb-4">
               <h3 className="font-bold">Email:</h3>
-              <p>{extractedInfo.Email}</p>
+              <p>{extractedInfo.Email?.[0] || "Not available"}</p>
             </div>
             <div className="mb-4">
-              <h3 className="font-bold">Email:</h3>
-              <p>{extractedInfo.GitHub}</p>
+              <h3 className="font-bold">GitHub:</h3>
+              <p>{extractedInfo.GitHub?.[0] || "Not available"}</p>
             </div>
             <div className="mb-4">
-              <h3 className="font-bold">Email:</h3>
-              <p>{extractedInfo.LinkedIn}</p>
+              <h3 className="font-bold">LinkedIn:</h3>
+              <p>{extractedInfo.LinkedIn?.[0] || "Not available"}</p>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-bold">Education:</h3>
+              {extractedInfo.Education?.map((edu, index) => (
+                <p key={index}>{edu.degree}</p>
+              )) || "Not available"}
             </div>
             <div className="mb-4">
               <h3 className="font-bold">Professional Experience:</h3>
-              <ul>
-                {extractedInfo["Professional Experience"].map((exp, index) => (
-                  <li key={index}>{exp.Role} - {exp.Duration}</li>
-                ))}
-              </ul>
+              {Object.keys(extractedInfo.ProfessionalExperience || {}).map((role, index) => (
+                <div key={index}>
+                  <p className="font-semibold">{role}</p>
+                  {extractedInfo.ProfessionalExperience[role].map((exp, idx) => (
+                    <div key={idx}>
+                      <p>{exp.description}</p>
+                      <p>{exp.duration}</p>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
             <div className="mb-4">
               <h3 className="font-bold">Projects:</h3>
-              <ul>
-                {extractedInfo['Projects'].map((project, index) => (
-                  <div key={index}>
-                    <h4>{project['Project Name']}</h4>
-
-                    <p>{project['Description']}</p>
-                  </div>
-                ))}
-              </ul>
+              {extractedInfo.Projects?.map((project, index) => (
+                <div key={index}>
+                  <p>{project.project_name}</p>
+                  <p>{project.description}</p>
+                  <p>{project.technologies}</p>
+                </div>
+              )) || "Not available"}
             </div>
           </div>
         )}
 
-
         <div className="mt-8">
-          <Accordion type="single" collapsible>
-  <AccordionItem value="item-1">
-    <AccordionTrigger>
-    <h2 className="text-xl font-semibold">Instructions</h2>
-    </AccordionTrigger>
-    <AccordionContent>
-    <ol className="list-decimal pl-5">
-      <li className="mb-2">Enter your desired username.</li>
-      <li className="mb-2">Prepare your resume in PDF format.</li>
-      <li className="mb-2">Click the 'Choose File' button and select your resume PDF.</li>
-      <li className="mb-2">Click the 'Upload Resume' button to process your resume.</li>
-      <li className="mb-2">Wait for the upload to complete. This may take a few moments.</li>
-      <li>Once successful, you'll be redirected to your portfolio page.</li>
-    </ol>
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
-
+          <h2 className="text-xl font-semibold mb-4">Instructions</h2>
+          <ol className="list-decimal pl-5">
+            <li className="mb-2">Enter your desired username.</li>
+            <li className="mb-2">Prepare your resume in PDF format.</li>
+            <li className="mb-2">Click the 'Choose File' button and select your resume PDF.</li>
+            <li className="mb-2">Click the 'Upload Resume' button to process your resume.</li>
+            <li className="mb-2">Wait for the upload to complete. This may take a few moments.</li>
+            <li>Once successful, you'll be redirected to your portfolio page.</li>
+          </ol>
         </div>
       </div>
     </div>

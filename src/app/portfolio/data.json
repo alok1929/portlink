@@ -59,15 +59,3 @@
     }
 }
 
-<Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <GraduationCap className="w-5 h-5 mr-2" />
-                Education
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-medium">Mount Carmel College, Bangalore</p>
-              <p className="text-sm text-muted-foreground">BA in Psychology, English Literature (2021-2024)</p>
-            </CardContent>
-          </Card>

@@ -1,12 +1,15 @@
-import Portfolio from '../portfolio/page';
+"use client";
+import Portfolio from '../portfolio/[username]/page';
 
-export default function UserPortfolio() {
-  return <Portfolio username={username}/>;
-}
+const UserPortfolio = ({ params }: { params: { username: string } }) => {
+  return <Portfolio username={params.username} />;
+};
 
-export async function getServerSideProps({ params }) {
+export default UserPortfolio;
+
+export async function getServerSideProps({ params }: { params: { username: string } }) {
   const { username } = params;
   return {
-    props: { username: params.username },
+    props: { username },
   };
 }

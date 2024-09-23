@@ -3,7 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const PublishButton = () => {
+interface PublishButtonProps {
+  username: string;
+}
+
+const PublishButton: React.FC<PublishButtonProps> = ({ username }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [deploymentUrl, setDeploymentUrl] = useState('');
   const [error, setError] = useState('');
@@ -17,8 +21,7 @@ const PublishButton = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: 'user-entered-username' }),
-
+        body: JSON.stringify({ username }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
