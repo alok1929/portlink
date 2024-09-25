@@ -1,18 +1,15 @@
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useData } from "./DataContext";
-import { useRouter } from "next/navigation";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Briefcase, Lightbulb, Github, Linkedin, Mail } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface ExtractedInfo {
   Name: string;
@@ -21,9 +18,9 @@ interface ExtractedInfo {
   LinkedIn: string;
   Education: string[];
   "Professional Experience": Array<{
-    role: string;
-    description: string;
-    duration: string;
+    Role: string;
+    Description: string;
+    Duration: string;
   }>;
   Projects: Array<{
     project_name: string;
@@ -34,24 +31,25 @@ interface ExtractedInfo {
     question: string;
     answer: string;
   }>;
+  "Skills": string[];
 }
 
-export default function ResumeUpload() {
+export default function ResumeUploadPortfolio() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [username, setUsername] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [extractedInfo, setExtractedInfo] = useState<ExtractedInfo | null>(null);
 
-  const { setData } = useData();
-  const router = useRouter();
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setFile(event.target.files[0]);
       setError(null);
-      setUploadSuccess(false);
     }
   };
 
@@ -59,25 +57,23 @@ export default function ResumeUpload() {
     setUsername(e.target.value);
   };
 
-  const handleUpload = async () => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!file) {
-      setError("Please select a file");
+      setError('Please select a file to upload.');
+      return;
+    }
+    if (!username) {
+      setError('Please enter a username.');
       return;
     }
 
-    if (!username) {
-      setError("Please enter a username");
-      return;
-    }
+    setIsUploading(true);
+    setError(null);
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("username", username);
-
-    setLoading(true);
-    setError(null);
-    setUploadSuccess(false);
-    setExtractedInfo(null);
 
     try {
       const uploadResponse = await axios.post("http://localhost:5000/upload", formData, {
@@ -87,140 +83,219 @@ export default function ResumeUpload() {
       });
 
       if (uploadResponse.status === 200) {
-        setUploadSuccess(true);
-
         const fetchResponse = await axios.get(`http://localhost:5000/resume/${username}`);
-
         const extractedData: ExtractedInfo = fetchResponse.data.extracted_info;
+        console.log(extractedData);
         setExtractedInfo(extractedData);
-        setData(extractedData);
-
-        console.log("Extracted Data:", extractedData);
-
-        // Redirect to portfolio page after a short delay
-
       } else {
         throw new Error("Error occurred during file upload");
       }
-    } catch (error: any) {
-      console.error("Error uploading file", error);
-      setError(error.response?.data?.error || "An error occurred while uploading the file");
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'An error occurred while processing your resume. Please try again.');
     } finally {
-      setLoading(false);
+      setIsUploading(false);
     }
   };
 
   return (
-    <div className="min-h-screen text-black bg-gray-100 p-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl text-black font-bold mb-4">Upload Your Resume</h1>
+    <div className="flex h-screen bg-gray-200">
 
-        <div className="flex flex-col mb-4">
-          <Input
-            id="username"
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={handleUsernameChange}
-            className="mb-4"
-          />
-
-          <Input
-            id="resume"
-            type="file"
-            onChange={handleFileChange}
-            accept=".pdf"
-            className="mb-4"
-          />
-
-          <Button
-            onClick={handleUpload}
-            disabled={loading || !file || !username}
-            className="w-full"
-          >
-            {loading ? "Uploading..." : "Upload Resume"}
-          </Button>
-        </div>
-
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {uploadSuccess && (
-          <Alert variant="default" className="mb-4 text-black bg-green-100 border-green-400">
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>
-              Resume uploaded successfully! Redirecting to portfolio...
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {extractedInfo && (
-          <div className="mt-8 bg-gray-50 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Extracted Resume Information</h2>
-            <div className="mb-4">
-              <h3 className="font-bold">Name:</h3>
-              <p>{extractedInfo.Name}</p>
-            </div>
-            <div className="mb-4">
-              <h3 className="font-bold">Email:</h3>
-              <p>{extractedInfo.Email}</p>
-            </div>
-            <div className="mb-4">
-              <h3 className="font-bold">Email:</h3>
-              <p>{extractedInfo.GitHub}</p>
-            </div>
-            <div className="mb-4">
-              <h3 className="font-bold">Email:</h3>
-              <p>{extractedInfo.LinkedIn}</p>
-            </div>
-            <div className="mb-4">
-              <h3 className="font-bold">Professional Experience:</h3>
-              <ul>
-                {extractedInfo["Professional Experience"].map((exp, index) => (
-                  <li key={index}>{exp.Role} - {exp.Duration}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="mb-4">
-              <h3 className="font-bold">Projects:</h3>
-              <ul>
-                {extractedInfo['Projects'].map((project, index) => (
-                  <div key={index}>
-                    <h4>{project['Project Name']}</h4>
-
-                    <p>{project['Description']}</p>
-                  </div>
-                ))}
-              </ul>
-            </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="bg-white shadow-sm">
+          <div className="mx-auto py-3 sm:px-6 lg:px-8">
+            <h1 className="text-xl font-semibold text-gray-900">PortLink</h1>
           </div>
-        )}
+        </header>
+        <main className="p-4 overflow-auto">
+          {!extractedInfo ? (
+            <div className="max-w-md mx-auto">
+              <Card className="bg-white shadow">
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 text-gray-800">Upload Your Resume</h2>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                        Username
+                      </Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={handleUsernameChange}
+                        className="mt-1"
+                        placeholder="Enter your username"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="resume" className="text-sm font-medium text-gray-700">
+                        Upload your resume (PDF)
+                      </Label>
+                      <div className="mt-1 flex items-center">
+                        <Input
+                          id="resume"
+                          type="file"
+                          accept=".pdf"
+                          onChange={handleFileChange}
+                          className="sr-only"
+                        />
+                        <Label
+                          htmlFor="resume"
+                          className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          Choose file
+                        </Label>
+                        <span className="ml-3 text-sm text-gray-500">
+                          {file ? file.name : 'No file chosen'}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={isUploading || !file || !username}
+                      className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                    >
+                      {isUploading ? 'Uploading...' : 'Upload Resume'}
+                    </Button>
+                  </form>
+                  {error && <p className="mt-2 text-red-600 text-sm">{error}</p>}
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full overflow-auto">
+              {/* Profile Card */}
+              <Card className="md:col-span-1 row-span-2">
+                <CardContent className="flex flex-col items-center justify-center h-full p-6">
+                  <Avatar className="w-24 h-24 mb-4">
+                    <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profile" />
+                    <AvatarFallback></AvatarFallback>
+                  </Avatar>
+                  <h1 className="text-3xl font-bold mb-2">{extractedInfo.Name}</h1>
+                  <div className="flex space-x-4">
+                    <a href={`https://github.com/${extractedInfo.GitHub}`} className="text-gray-600 hover:text-gray-900">
+                      <Github className="w-6 h-6" />
+                    </a>
+                    <a href={`https://www.linkedin.com/in/${extractedInfo.LinkedIn}`} className="text-gray-600 hover:text-gray-900">
+                      <Linkedin className="w-6 h-6" />
+                    </a>
+                    <a href={`mailto:${extractedInfo.Email}`} className="text-gray-600 hover:text-gray-900">
+                      <Mail className="w-6 h-6" />
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
 
+              {/* Experience Card */}
+              <Card className="md:col-span-2 row-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Briefcase className="w-5 h-5 mr-2" />
+                    Experience
+                  </CardTitle>
+                </CardHeader>
+                <ScrollArea className="h-[400px]">
+                  <CardContent>
+                    <div className="flex flex-col gap-3">
+                      {extractedInfo["Professional Experience"].map((exp, idx) => (
+                        <Card key={idx} className="p-4">
+                          <h3 className="font-bold text-lg">{exp.Role}</h3>
+                          <p className="text-sm text-muted-foreground">{exp.Description}</p>
+                          <Badge variant="outline" className="mt-2 text-sm font-semibold text-black border-2 border-black">
+                            {exp.Duration}
+                          </Badge>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </ScrollArea>
+              </Card>
 
-        <div className="mt-8">
-          <Accordion type="single" collapsible>
-  <AccordionItem value="item-1">
-    <AccordionTrigger>
-    <h2 className="text-xl font-semibold">Instructions</h2>
-    </AccordionTrigger>
-    <AccordionContent>
-    <ol className="list-decimal pl-5">
-      <li className="mb-2">Enter your desired username.</li>
-      <li className="mb-2">Prepare your resume in PDF format.</li>
-      <li className="mb-2">Click the 'Choose File' button and select your resume PDF.</li>
-      <li className="mb-2">Click the 'Upload Resume' button to process your resume.</li>
-      <li className="mb-2">Wait for the upload to complete. This may take a few moments.</li>
-      <li>Once successful, you'll be redirected to your portfolio page.</li>
-    </ol>
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+              {/* Skills Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Lightbulb className="w-5 h-5 mr-2" />
+                    Skills
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {extractedInfo.Skills.map((skill, idx) => (
+                      <Badge key={idx} variant="outline" className="px-4 py-2 text-sm font-semibold text-black border-2 border-black">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-        </div>
+              {/* Projects Card */}
+              <Card className="md:col-span-2 row-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Github className="w-5 h-5 mr-2" />
+                    Projects
+                  </CardTitle>
+                </CardHeader>
+                <ScrollArea className="h-[100px]">
+                  <CardContent>
+                    <Accordion type="single" collapsible>
+                      {extractedInfo.Projects.map((project, idx) => (
+                        <AccordionItem key={idx} value={`project-${idx}`}>
+                          <AccordionTrigger>{project.project_name}</AccordionTrigger>
+                          <AccordionContent>
+                            <p>{project.description}</p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {project.technologies.map((tech, idx) => (
+                                <Badge key={idx} variant="outline" className="px-2 py-1 text-sm">
+                                  {tech}
+                                </Badge>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </CardContent>
+                </ScrollArea>
+              </Card>
+
+              <div className="flex gap-2">
+                {/* Questions and Answers Card */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Questions & Answers</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value="education">
+                      <AccordionTrigger>Questions</AccordionTrigger>
+                      <AccordionContent>
+                        {extractedInfo["Questions and Answers"].map((question, idx) => (
+                          <div key={idx} className="mb-4">
+                            <h3 className="font-semibold text-md">{question.question}</h3>
+                            <p className="text-sm">{question.answer}</p>
+                          </div>
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </CardContent>
+              </Card>
+              <div className="bg-blue-500 w-full h-full rounded-md flex justify-center items-center">
+                <Button>
+                <Badge variant="default" className="text-white p-2 py-2 px-2">
+                    Publish
+                </Badge>
+                </Button>
+              </div>
+              </div>
+              
+            </div>
+          )}
+          
+        </main>
       </div>
     </div>
   );
