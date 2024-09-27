@@ -23,9 +23,8 @@ interface ExtractedInfo {
     Duration: string;
   }>;
   Projects: Array<{
-    "Project Name": string;
+    Name: string;
     Description: string;
-    Technologies: string[];
   }>;
   "Questions and Answers": Array<{
     question: string;
