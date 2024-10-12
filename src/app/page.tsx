@@ -57,20 +57,18 @@ export default function ResumeUploadPortfolio() {
 
     try {
       const uploadResponse = await axios.post(
-        "https://portlinkpy.vercel.app/upload",
+        "/api/proxy/upload",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true, // This is important for CORS requests with credentials
         }
       );
 
       if (uploadResponse.status === 200) {
         const fetchResponse = await axios.get(
-          `https://portlinkpy.vercel.app/resume/${username}`,
-          { withCredentials: true }
+          `/api/proxy/resume/${username}`
         );
         const extractedData: ExtractedInfo = fetchResponse.data.extracted_info;
         setExtractedInfo(extractedData);
@@ -98,10 +96,10 @@ export default function ResumeUploadPortfolio() {
       setIsUploading(false);
     }
   };
-
+  
   const handlePublish = async () => {
-    if (!username) {
-      setError("Please enter a username.");
+    if (!extractedInfo || !username) {
+      setError("Missing required information for publishing.");
       return;
     }
 
@@ -109,29 +107,23 @@ export default function ResumeUploadPortfolio() {
     setError(null);
 
     try {
-      const publishResponse = await axios.post(
-        `https://portlinkpy.vercel.app/publish/${username}`,
-        {},
-        { withCredentials: true }
+      const vercelResponse = await axios.post(
+        "/api/proxy/create-vercel-project",
+        {
+          username: username,
+          extracted_info: extractedInfo,
+        }
       );
 
-      if (publishResponse.status === 200) {
-        const { published_url } = publishResponse.data;
-        setPublishedUrl(published_url);
-        toast.success("Portfolio published successfully!");
+      if (vercelResponse.status === 200) {
+        const { url } = vercelResponse.data;
+        setPublishedUrl(url);
+        toast.success(`Website created! Visit: ${url}`);
       } else {
-        throw new Error("Error occurred during portfolio publishing");
+        throw new Error("Failed to create Vercel project");
       }
     } catch (err: any) {
-      let errorMessage = "An error occurred while publishing your portfolio.";
-      if (err.response) {
-        errorMessage = err.response.data.error || err.response.data.message || errorMessage;
-        console.error("Response data:", err.response.data);
-      } else if (err.request) {
-        errorMessage = "No response received from the server.";
-      } else {
-        errorMessage = err.message;
-      }
+      const errorMessage = err.response?.data?.error || "An error occurred while creating the Vercel project.";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
