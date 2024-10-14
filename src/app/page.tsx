@@ -58,6 +58,7 @@ export default function ResumeUploadPortfolio() {
     formData.append("username", username);
   
     console.log("Form data prepared for upload:", formData);
+    console.log("dummy");
   
     try {
       const apiUrl = `https://portlinkpy.vercel.app/api/upload`;
