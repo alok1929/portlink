@@ -54,6 +54,7 @@ export default function ResumeUploadPortfolio() {
 
     const formData = new FormData();
     formData.append("file", file);
+    console.log("uploaded resume");
     formData.append("username", username);
 
     try {
