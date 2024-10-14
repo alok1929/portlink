@@ -40,6 +40,7 @@ export default function ResumeUploadPortfolio() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    
     if (!file) {
       setError("Please select a file to upload.");
       return;
@@ -48,18 +49,22 @@ export default function ResumeUploadPortfolio() {
       setError("Please enter a username.");
       return;
     }
-
+  
     setIsUploading(true);
     setError(null);
-
+  
     const formData = new FormData();
     formData.append("file", file);
-    console.log("uploaded resume");
     formData.append("username", username);
-
+  
+    console.log("Form data prepared for upload:", formData);
+  
     try {
+      const apiUrl = `${window.location.origin}/api/upload`;
+      console.log("Uploading to URL:", apiUrl);
+  
       const uploadResponse = await axios.post(
-        "/api/upload",
+        apiUrl,
         formData,
         {
           headers: {
@@ -67,11 +72,13 @@ export default function ResumeUploadPortfolio() {
           },
         }
       );
-
+  
+      console.log("Upload response:", uploadResponse);
+  
       if (uploadResponse.status === 200) {
-        const fetchResponse = await axios.get(
-          `/api/resume/${username}`
-        );
+        const fetchResponse = await axios.get(`/api/resume/${username}`);
+        console.log("Fetch response:", fetchResponse);
+        
         const extractedData: ExtractedInfo = fetchResponse.data.extracted_info;
         setExtractedInfo(extractedData);
         toast.success("Resume uploaded and processed successfully!");
@@ -80,6 +87,7 @@ export default function ResumeUploadPortfolio() {
       }
     } catch (err: any) {
       console.error("Error details:", err);
+      
       let errorMessage = "An error occurred while processing your resume. Please try again.";
       if (err.response) {
         errorMessage = err.response.data.error || err.response.data.message || errorMessage;
@@ -97,26 +105,32 @@ export default function ResumeUploadPortfolio() {
     } finally {
       setIsUploading(false);
     }
-  }
+  };
+  
   
   const handlePublish = async () => {
     if (!extractedInfo || !username) {
       setError("Missing required information for publishing.");
       return;
     }
-
+  
     setIsUploading(true);
     setError(null);
-
+  
     try {
+      const publishUrl = `${window.location.origin}/api/create-vercel-project`;
+      console.log("Publishing to URL:", publishUrl);
+  
       const vercelResponse = await axios.post(
-        "/api/create-vercel-project",
+        publishUrl,
         {
           username: username,
           extracted_info: extractedInfo,
         }
       );
-
+  
+      console.log("Vercel response:", vercelResponse);
+  
       if (vercelResponse.status === 200) {
         const { url } = vercelResponse.data;
         setPublishedUrl(url);
@@ -126,6 +140,7 @@ export default function ResumeUploadPortfolio() {
       }
     } catch (err: any) {
       console.error("Error details:", err);
+      
       let errorMessage = "An error occurred while creating the Vercel project.";
       if (err.response) {
         errorMessage = err.response.data.error || err.response.data.message || errorMessage;
@@ -144,6 +159,7 @@ export default function ResumeUploadPortfolio() {
       setIsUploading(false);
     }
   };
+  
   return (
     <div className="container mx-auto p-6">
       <form onSubmit={handleSubmit} className="space-y-6">
