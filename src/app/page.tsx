@@ -58,7 +58,7 @@ export default function ResumeUploadPortfolio() {
 
     try {
       const uploadResponse = await axios.post(
-        "/api/proxy/upload",
+        "/api/upload",
         formData,
         {
           headers: {
@@ -69,7 +69,7 @@ export default function ResumeUploadPortfolio() {
 
       if (uploadResponse.status === 200) {
         const fetchResponse = await axios.get(
-          `/api/proxy/resume/${username}`
+          `/api/resume/${username}`
         );
         const extractedData: ExtractedInfo = fetchResponse.data.extracted_info;
         setExtractedInfo(extractedData);
@@ -96,7 +96,7 @@ export default function ResumeUploadPortfolio() {
     } finally {
       setIsUploading(false);
     }
-  };
+  }
   
   const handlePublish = async () => {
     if (!extractedInfo || !username) {
@@ -109,7 +109,7 @@ export default function ResumeUploadPortfolio() {
 
     try {
       const vercelResponse = await axios.post(
-        "/api/proxy/create-vercel-project",
+        "/api/create-vercel-project",
         {
           username: username,
           extracted_info: extractedInfo,
@@ -124,14 +124,25 @@ export default function ResumeUploadPortfolio() {
         throw new Error("Failed to create Vercel project");
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || "An error occurred while creating the Vercel project.";
+      console.error("Error details:", err);
+      let errorMessage = "An error occurred while creating the Vercel project.";
+      if (err.response) {
+        errorMessage = err.response.data.error || err.response.data.message || errorMessage;
+        console.error("Response data:", err.response.data);
+        console.error("Response status:", err.response.status);
+        console.error("Response headers:", err.response.headers);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+        errorMessage = "No response received from the server. Please check your internet connection.";
+      } else {
+        console.error("Error setting up the request:", err.message);
+      }
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setIsUploading(false);
     }
   };
-
   return (
     <div className="container mx-auto p-6">
       <form onSubmit={handleSubmit} className="space-y-6">

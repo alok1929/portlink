@@ -11,7 +11,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   return httpProxyMiddleware(req, res, {
     target: 'https://portlinkpy.vercel.app',
     pathRewrite: {
-      '^/api/proxy': '', // remove /api/proxy from the URL
+      '^/api/proxy': '',
     },
     changeOrigin: true,
   });
