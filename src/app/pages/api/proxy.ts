@@ -14,5 +14,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       '^/api/proxy': '', // remove /api/proxy from the URL
     },
     changeOrigin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   });
 }
