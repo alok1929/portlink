@@ -65,7 +65,7 @@ export default function ResumeUploadPortfolio() {
       console.log("Uploading to URL:", apiUrl);
   
       const uploadResponse = await axios.post(
-        apiUrl,
+        "https://portlinkpy.vercel.app/api/upload",
         formData,
         {
           headers: {
