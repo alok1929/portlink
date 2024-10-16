@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Proxy the request to Flask backend
-    const response = await fetch('https://portlinkpy.vercel.app/create-vercel-project', {
+    const response = await fetch('https://portlinkpy.vercel.app/api/create-vercel-project', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

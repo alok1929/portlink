@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Proxy the file upload to Flask backend
-    const response = await fetch('https://portlinkpy.vercel.app/upload', {
+    const response = await fetch('https://portlinkpy.vercel.app/api/upload', {
       method: 'POST',
       body: formData,
     });
