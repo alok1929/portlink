@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error creating Vercel project:', error);
-    return NextResponse.json({ error: error.message || 'Failed to create Vercel project' }, { status: 500 });
-  }
+  console.error('Error creating Vercel project:', error);
+  return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+}
 }
