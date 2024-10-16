@@ -1,4 +1,3 @@
-"use client";
 import { useState } from 'react';
 import axios from 'axios';
 
@@ -23,7 +22,7 @@ export default function FileUploadPage() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('/upload', formData, {
+      const response = await axios.post('https://portlinkpy.vercel.app/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
