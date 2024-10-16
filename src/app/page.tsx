@@ -61,11 +61,9 @@ export default function ResumeUploadPortfolio() {
     console.log("dummy");
   
     try {
-      const apiUrl = `https://portlinkpy.vercel.app/api/upload`;
-      console.log("Uploading to URL:", apiUrl);
   
       const uploadResponse = await axios.post(
-        "https://portlinkpy.vercel.app/api/upload",
+        "/api/proxy/api/upload",
         formData,
         {
           headers: {
@@ -73,6 +71,7 @@ export default function ResumeUploadPortfolio() {
           },
         }
       );
+      console.log("Uploading to URL:", uploadResponse.config.url);
   
       console.log("Upload response:", uploadResponse);
   
@@ -119,9 +118,7 @@ export default function ResumeUploadPortfolio() {
     setError(null);
   
     try {
-      const publishUrl = `${window.location.origin}/api/create-vercel-project`;
-      console.log("Publishing to URL:", publishUrl);
-  
+      const publishUrl = "/api/proxy/api/create-vercel-project";
       const vercelResponse = await axios.post(
         publishUrl,
         {
