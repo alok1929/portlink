@@ -57,7 +57,7 @@ export default function ResumeUploadPortfolio() {
 
     try {
       const uploadResponse = await axios.post(
-        "/api/upload",
+        "https://portlinkpy.vercel.app/api/upload",
         formData,
         {
           headers: {
@@ -93,7 +93,7 @@ export default function ResumeUploadPortfolio() {
 
     try {
       const vercelResponse = await axios.post(
-        "/api/create-vercel-project",
+        "https://portlinkpy.vercel.app/api/create-vercel-project",
         {
           username: username,
           extracted_info: extractedInfo,
