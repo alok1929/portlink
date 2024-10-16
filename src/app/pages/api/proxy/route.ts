@@ -1,30 +1,21 @@
-import { NextResponse } from 'next/server'
-
-export const runtime = 'edge'
-
-export async function GET(request: Request) {
-  const url = new URL(request.url)
-  const targetUrl = `https://portlinkpy.vercel.app${url.pathname}${url.search}`
-
-  const response = await fetch(targetUrl, {
-    headers: request.headers,
-    method: request.method,
-  })
-
-  return NextResponse.json(await response.json())
-}
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const url = new URL(request.url)
-  const targetUrl = `https://portlinkpy.vercel.app${url.pathname}${url.search}`
+  const formData = await request.formData();
+  const file = formData.get('file');
 
-  const response = await fetch(targetUrl, {
-    headers: request.headers,
-    method: request.method,
-    body: request.body,
-  })
+  // Proxy the file upload to Flask backend
+  const response = await fetch('https://portlinkpy.vercel.app/upload', {
+    method: 'POST',
+    body: formData,
+  });
 
-  return NextResponse.json(await response.json())
+  const data = await response.json();
+  return NextResponse.json(data);
 }
 
-// Add similar functions for other HTTP methods you need (PUT, DELETE, etc.)
+export const config = {
+  api: {
+    bodyParser: false,  // Ensure Next.js doesn't parse the body
+  },
+};
