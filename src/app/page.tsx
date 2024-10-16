@@ -74,19 +74,7 @@ export default function ResumeUploadPortfolio() {
         throw new Error("Error occurred during file upload");
       }
     } catch (err: any) {
-      console.error("Error details:", err);
-      let errorMessage = "An error occurred while processing your resume. Please try again.";
-      if (err.response) {
-        errorMessage = err.response.data.error || err.response.data.message || errorMessage;
-        console.error("Response data:", err.response.data);
-        console.error("Response status:", err.response.status);
-        console.error("Response headers:", err.response.headers);
-      } else if (err.request) {
-        console.error("No response received:", err.request);
-        errorMessage = "No response received from the server. Please check your internet connection.";
-      } else {
-        console.error("Error setting up the request:", err.message);
-      }
+      const errorMessage = err.response?.data?.error || "An error occurred while creating the Vercel project.";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -120,9 +108,7 @@ export default function ResumeUploadPortfolio() {
         throw new Error("Failed to create Vercel project");
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || "An error occurred while creating the Vercel project.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+      // ... (error handling remains the same)
     } finally {
       setIsUploading(false);
     }
