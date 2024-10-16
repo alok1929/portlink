@@ -81,7 +81,7 @@ export default function ResumeUploadPortfolio() {
       setIsUploading(false);
     }
   };
-  
+
   const handlePublish = async () => {
     if (!extractedInfo || !username) {
       setError("Missing required information for publishing.");
@@ -107,13 +107,15 @@ export default function ResumeUploadPortfolio() {
       } else {
         throw new Error("Failed to create Vercel project");
       }
-    } catch (err: any) {
-      // ... (error handling remains the same)
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || "An error occurred while creating the Vercel project.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsUploading(false);
     }
   };
-  
+
 
   return (
     <div className="container mx-auto p-6">
