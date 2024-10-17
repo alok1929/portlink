@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
 
   try {
-    const response = await fetch('https://portlinkpy.vercel.app/api/upload', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error uploading file:', error);
-    return NextResponse.json({ error: (error as Error).message || 'Failed to upload file' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to upload file';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

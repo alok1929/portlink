@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   try {
-    const response = await fetch('https://portlinkpy.vercel.app/api/create-vercel-project', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create-vercel-project`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-  console.error('Error creating Vercel project:', error);
-  return NextResponse.json({ error: (error as Error).message }, { status: 500 });
-}
+    console.error('Error creating Vercel project:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create Vercel project';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
+  }
 }
