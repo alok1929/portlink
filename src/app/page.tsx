@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
+// API base URL from environment variable
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://portlinkpy.vercel.app';
+
 interface ExtractedInfo {
   Name: string;
   Email: string;
@@ -34,10 +37,12 @@ export default function ResumeUploadPortfolio() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    
     if (!file) {
       toast.error("Please select a file to upload.");
       return;
     }
+    
     if (!username) {
       toast.error("Please enter a username.");
       return;
@@ -51,19 +56,44 @@ export default function ResumeUploadPortfolio() {
     formData.append("username", username);
 
     try {
-      const response = await axios.post(
-        'https://portlinkpy.vercel.app/api/upload',
+      // Direct API call to Flask backend
+      const uploadResponse = await axios.post(
+        `${API_BASE_URL}/api/upload`,
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-          },
+            'Accept': 'application/json',
+          }
         }
       );
 
-      if (response.data.success) {
-        setExtractedInfo(response.data.extracted_info);
+      if (uploadResponse.data.success) {
+        setExtractedInfo(uploadResponse.data.extracted_info);
         toast.success("Resume uploaded and processed successfully!");
+
+        // Create Vercel project after successful upload
+        try {
+          const vercelResponse = await axios.post(
+            `${API_BASE_URL}/api/create-vercel-project`,
+            {
+              username,
+              extracted_info: uploadResponse.data.extracted_info
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
+          );
+
+          if (vercelResponse.data.url) {
+            toast.success(`Portfolio created at: ${vercelResponse.data.url}`);
+          }
+        } catch (vercelError: any) {
+          console.error('Error creating portfolio:', vercelError);
+          toast.error('Portfolio created but deployment failed. Please try again later.');
+        }
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || "Error uploading file";
@@ -119,7 +149,6 @@ export default function ResumeUploadPortfolio() {
           </CardContent>
         </Card>
       </form>
-
       {extractedInfo && (
         <Card className="mt-6">
           <CardHeader>
