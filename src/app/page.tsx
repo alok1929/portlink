@@ -68,9 +68,13 @@ const FileUploadPage: React.FC = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setMessage(`File uploaded successfully: ${response.data.message}`);
-      setResumeInfo(response.data.resume_info);
-      console.log('File uploaded successfully:', response.data);
+      setMessage(`${response.data.message}`);
+      console.log('Response data:', response.data);
+      if (response.data.resume_info) {
+        setResumeInfo(response.data.resume_info);
+      } else {
+        console.error('No resume_info in response data');
+      }
     } catch (error) {
       setMessage(`Error uploading file: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Error uploading file:', error);
