@@ -9,10 +9,21 @@ interface ResumeInfo {
   GitHub: string;
   LinkedIn: string;
   Education: string[];
-  "Professional Experience": string[];
-  Projects: string[];
+  "Professional Experience": Array<{
+    Role: string;
+    Duration: string;
+    Description: string;
+  }>;
+  Projects: Array<{
+    Name: string;
+    Description: string;
+    Technologies: string[];
+  }>;
   Skills: string[];
-  "Questions and Answers": string[];
+  "Questions and Answers": Array<{
+    Question: string;
+    Answer: string;
+  }>;
 }
 
 const FileUploadPage: React.FC = () => {
@@ -123,14 +134,21 @@ const FileUploadPage: React.FC = () => {
           <h3 className="font-semibold mt-4">Professional Experience</h3>
           <ul className="list-disc pl-5">
             {resumeInfo["Professional Experience"].map((exp, index) => (
-              <li key={index}>{exp}</li>
+              <li key={index}>
+                <strong>{exp.Role}</strong> ({exp.Duration})
+                <p>{exp.Description}</p>
+              </li>
             ))}
           </ul>
           
           <h3 className="font-semibold mt-4">Projects</h3>
           <ul className="list-disc pl-5">
             {resumeInfo.Projects.map((project, index) => (
-              <li key={index}>{project}</li>
+              <li key={index}>
+                <strong>{project.Name}</strong>
+                <p>{project.Description}</p>
+                <p><strong>Technologies:</strong> {project.Technologies.join(', ')}</p>
+              </li>
             ))}
           </ul>
           
@@ -144,7 +162,10 @@ const FileUploadPage: React.FC = () => {
           <h3 className="font-semibold mt-4">Questions and Answers</h3>
           <ul className="list-disc pl-5">
             {resumeInfo["Questions and Answers"].map((qa, index) => (
-              <li key={index}>{qa}</li>
+              <li key={index}>
+                <strong>Q: {qa.Question}</strong>
+                <p>A: {qa.Answer}</p>
+              </li>
             ))}
           </ul>
         </div>
