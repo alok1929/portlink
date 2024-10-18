@@ -89,12 +89,12 @@ const FileUploadPage: React.FC = () => {
     }
 
     setMessage('Creating your resume website...');
-
+    
     try {
-      const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', {
-        username
+      const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', { 
+        username 
       });
-
+      
       if (response.data.url) {
         setPublishedUrl(response.data.url);
         setMessage(`Success! Your resume is now live at: ${response.data.url}`);
@@ -201,7 +201,7 @@ const FileUploadPage: React.FC = () => {
         </div>
       )}
 
-
+      {/* Add publish button after resume info */}
       {resumeInfo && (
         <div className="mt-4">
           <button
@@ -213,13 +213,13 @@ const FileUploadPage: React.FC = () => {
         </div>
       )}
 
-      {/* Add this section to display the published URL */}
+      {/* Display published URL */}
       {publishedUrl && (
         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
           <h3 className="font-semibold text-green-800">Your resume is live!</h3>
           <p className="mt-2">
             View your resume at:{' '}
-            <a
+            <a 
               href={publishedUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -238,7 +238,3 @@ const FileUploadPage: React.FC = () => {
 };
 
 export default FileUploadPage;
-
-function setPublishedUrl(url: any) {
-  throw new Error('Function not implemented.');
-}
