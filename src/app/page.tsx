@@ -29,6 +29,7 @@ interface ResumeInfo {
 const FileUploadPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [filename, setFilename] = useState<string>('');
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [resumeInfo, setResumeInfo] = useState<ResumeInfo | null>(null);
@@ -81,6 +82,31 @@ const FileUploadPage: React.FC = () => {
     }
   };
 
+  const handlePublish = async () => {
+    if (!username) {
+      setMessage("Please enter a username before publishing.");
+      return;
+    }
+
+    setMessage('Creating your resume website...');
+
+    try {
+      const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', {
+        username
+      });
+
+      if (response.data.url) {
+        setPublishedUrl(response.data.url);
+        setMessage(`Success! Your resume is now live at: ${response.data.url}`);
+      } else {
+        setMessage('Failed to get the published URL.');
+      }
+    } catch (error) {
+      setMessage(`Error publishing resume: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('Error publishing resume:', error);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Upload a Resume</h1>
@@ -127,14 +153,14 @@ const FileUploadPage: React.FC = () => {
           <p><strong>Email:</strong> {resumeInfo.Email}</p>
           <p><strong>GitHub:</strong> {resumeInfo.GitHub}</p>
           <p><strong>LinkedIn:</strong> {resumeInfo.LinkedIn}</p>
-          
+
           <h3 className="font-semibold mt-4">Education</h3>
           <ul className="list-disc pl-5">
             {resumeInfo.Education.map((edu, index) => (
               <li key={index}>{edu}</li>
             ))}
           </ul>
-          
+
           <h3 className="font-semibold mt-4">Professional Experience</h3>
           <ul className="list-disc pl-5">
             {resumeInfo["Professional Experience"].map((exp, index) => (
@@ -144,7 +170,7 @@ const FileUploadPage: React.FC = () => {
               </li>
             ))}
           </ul>
-          
+
           <h3 className="font-semibold mt-4">Projects</h3>
           <ul className="list-disc pl-5">
             {resumeInfo.Projects.map((project, index) => (
@@ -155,14 +181,14 @@ const FileUploadPage: React.FC = () => {
               </li>
             ))}
           </ul>
-          
+
           <h3 className="font-semibold mt-4">Skills</h3>
           <ul className="list-disc pl-5">
             {resumeInfo.Skills.map((skill, index) => (
               <li key={index}>{skill}</li>
             ))}
           </ul>
-          
+
           <h3 className="font-semibold mt-4">Questions and Answers</h3>
           <ul className="list-disc pl-5">
             {resumeInfo["Questions and Answers"].map((qa, index) => (
@@ -174,8 +200,45 @@ const FileUploadPage: React.FC = () => {
           </ul>
         </div>
       )}
+
+
+      {resumeInfo && (
+        <div className="mt-4">
+          <button
+            onClick={handlePublish}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+          >
+            Publish Resume Website
+          </button>
+        </div>
+      )}
+
+      {/* Add this section to display the published URL */}
+      {publishedUrl && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
+          <h3 className="font-semibold text-green-800">Your resume is live!</h3>
+          <p className="mt-2">
+            View your resume at:{' '}
+            <a
+              href={publishedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              {publishedUrl}
+            </a>
+          </p>
+          <p className="mt-2 text-sm text-gray-600">
+            Note: It may take a few minutes for your site to be fully deployed.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
 
 export default FileUploadPage;
+
+function setPublishedUrl(url: any) {
+  throw new Error('Function not implemented.');
+}
