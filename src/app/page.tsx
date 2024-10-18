@@ -108,17 +108,21 @@ const FileUploadPage: React.FC = () => {
       setMessage("Please enter a username before publishing.");
       return;
     }
-
+  
     setMessage('Creating your resume website...');
-
+  
     try {
       const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', {
         username
       });
-
+  
       if (response.data.url) {
         setPublishedUrl(response.data.url);
-        setMessage(`Success! Your resume is now live at: ${response.data.url}`);
+        setMessage(
+          `Success! Your resume website is being created at: ${response.data.url}\n\n` +
+          'To complete setup:\n' +
+          response.data.next_steps.steps.join('\n')
+        );
       } else {
         setMessage('Failed to get the published URL.');
       }
@@ -126,7 +130,7 @@ const FileUploadPage: React.FC = () => {
       setMessage(`Error publishing resume: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Error publishing resume:', error);
     }
-  };
+  };  
 
   return (
     <div className="container mx-auto p-4">
