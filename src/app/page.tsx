@@ -48,10 +48,13 @@ const FileUploadPage: React.FC = () => {
     setUsername(e.target.value);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     setResumeInfo(null);
+    setUploadProgress(0);
 
     if (!file || !filename || !username) {
       setMessage("Please fill in all fields and select a file!");
@@ -68,7 +71,13 @@ const FileUploadPage: React.FC = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        },
+        timeout: 60000, // Set a longer timeout (60 seconds)
       });
+
       setMessage(`${response.data.message}`);
       console.log('Response data:', response.data);
       if (response.data.resume_info) {
@@ -77,8 +86,20 @@ const FileUploadPage: React.FC = () => {
         console.error('No resume_info in response data');
       }
     } catch (error) {
-      setMessage(`Error uploading file: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Error uploading file:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setMessage(`Error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        setMessage('Error: No response received from server. Please try again later.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setMessage(`Error: ${error.message}`);
+      }
+    } finally {
+      setUploadProgress(0);
     }
   };
 
@@ -89,12 +110,12 @@ const FileUploadPage: React.FC = () => {
     }
 
     setMessage('Creating your resume website...');
-    
+
     try {
-      const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', { 
-        username 
+      const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', {
+        username
       });
-      
+
       if (response.data.url) {
         setPublishedUrl(response.data.url);
         setMessage(`Success! Your resume is now live at: ${response.data.url}`);
@@ -145,6 +166,7 @@ const FileUploadPage: React.FC = () => {
         </div>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Upload</button>
       </form>
+      {uploadProgress > 0 && <progress value={uploadProgress} max="100" />}
       {message && <p className="mb-4">{message}</p>}
       {resumeInfo && (
         <div className="border p-4 rounded">
@@ -219,7 +241,7 @@ const FileUploadPage: React.FC = () => {
           <h3 className="font-semibold text-green-800">Your resume is live!</h3>
           <p className="mt-2">
             View your resume at:{' '}
-            <a 
+            <a
               href={publishedUrl}
               target="_blank"
               rel="noopener noreferrer"
