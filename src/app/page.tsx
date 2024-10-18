@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
+import axios, { AxiosProgressEvent } from 'axios';
 
 interface ResumeInfo {
   Name: string;
@@ -33,6 +33,7 @@ const FileUploadPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [resumeInfo, setResumeInfo] = useState<ResumeInfo | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -48,9 +49,7 @@ const FileUploadPage: React.FC = () => {
     setUsername(e.target.value);
   };
 
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage('');
     setResumeInfo(null);
@@ -71,13 +70,15 @@ const FileUploadPage: React.FC = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
+        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
         },
         timeout: 60000, // Set a longer timeout (60 seconds)
       });
-
+      
       setMessage(`${response.data.message}`);
       console.log('Response data:', response.data);
       if (response.data.resume_info) {
@@ -87,22 +88,21 @@ const FileUploadPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        setMessage(`Error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`);
-      } else if (error.request) {
-        // The request was made but no response was received
-        setMessage('Error: No response received from server. Please try again later.');
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          setMessage(`Error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`);
+        } else if (error.request) {
+          setMessage('Error: No response received from server. Please try again later.');
+        } else {
+          setMessage(`Error: ${error.message}`);
+        }
       } else {
-        // Something happened in setting up the request that triggered an Error
-        setMessage(`Error: ${error.message}`);
+        setMessage('An unexpected error occurred');
       }
     } finally {
       setUploadProgress(0);
     }
   };
-
   const handlePublish = async () => {
     if (!username) {
       setMessage("Please enter a username before publishing.");
@@ -166,7 +166,17 @@ const FileUploadPage: React.FC = () => {
         </div>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Upload</button>
       </form>
-      {uploadProgress > 0 && <progress value={uploadProgress} max="100" />}
+      {uploadProgress > 0 && (
+        <div className="mb-4">
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full" 
+              style={{width: `${uploadProgress}%`}}
+            ></div>
+          </div>
+          <p className="text-sm mt-1">{uploadProgress}% Uploaded</p>
+        </div>
+      )}
       {message && <p className="mb-4">{message}</p>}
       {resumeInfo && (
         <div className="border p-4 rounded">
