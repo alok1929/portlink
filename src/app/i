@@ -1,0 +1,55 @@
+ {message && <p className="mb-4">{message}</p>}
+      {resumeInfo && (
+        <div className="border p-4 rounded mb-4">
+          <h2 className="text-xl font-semibold mb-2">Extracted Resume Information</h2>
+          <p><strong>Name:</strong> {resumeInfo.Name}</p>
+          <p><strong>Email:</strong> {resumeInfo.Email}</p>
+          <p><strong>GitHub:</strong> {resumeInfo.GitHub}</p>
+          <p><strong>LinkedIn:</strong> {resumeInfo.LinkedIn}</p>
+
+          <h3 className="font-semibold mt-4">Education</h3>
+          <ul className="list-disc pl-5">
+            {resumeInfo.Education.map((edu, index) => (
+              <li key={index}>{edu}</li>
+            ))}
+          </ul>
+
+          <h3 className="font-semibold mt-4">Professional Experience</h3>
+          <ul className="list-disc pl-5">
+            {resumeInfo["Professional Experience"].map((exp, index) => (
+              <li key={index}>
+                <strong>{exp.Role}</strong> ({exp.Duration})
+                <p>{exp.Description}</p>
+              </li>
+            ))}
+          </ul>
+
+          <h3 className="font-semibold mt-4">Projects</h3>
+          <ul className="list-disc pl-5">
+            {resumeInfo.Projects.map((project, index) => (
+              <li key={index}>
+                <strong>{project.Name}</strong>
+                <p>{project.Description}</p>
+                <p><strong>Technologies:</strong> {project.Technologies.join(', ')}</p>
+              </li>
+            ))}
+          </ul>
+
+          <h3 className="font-semibold mt-4">Skills</h3>
+          <ul className="list-disc pl-5">
+            {resumeInfo.Skills.map((skill, index) => (
+              <li key={index}>{skill}</li>
+            ))}
+          </ul>
+
+          <h3 className="font-semibold mt-4">Questions and Answers</h3>
+          <ul className="list-disc pl-5">
+            {resumeInfo["Questions and Answers"].map((qa, index) => (
+              <li key={index}>
+                <strong>Q: {qa.Question}</strong>
+                <p>A: {qa.Answer}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
