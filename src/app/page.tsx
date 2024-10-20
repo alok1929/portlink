@@ -116,10 +116,10 @@ const FileUploadPage: React.FC = () => {
         username
       });
   
-      if (response.data.url) {
-        setPublishedUrl(response.data.url);
+      if (response.data.deploymentUrl) {
+        setPublishedUrl(response.data.deploymentUrl);
         setMessage(
-          `Success! Your resume website is being created at: ${response.data.url}\n\n` +
+          `Success! Your resume website is being created at: ${response.data.deploymentUrl}\n\n` +
           'To complete setup:\n' +
           response.data.next_steps.steps.join('\n')
         );
