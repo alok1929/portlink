@@ -115,8 +115,7 @@ const FileUploadPage: React.FC = () => {
       const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', {
         username
       });
-      
-      console.log(response.data);
+  
       if (response.data.deploymentUrl) {
         setPublishedUrl(response.data.deploymentUrl);
         setMessage(
