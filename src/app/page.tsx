@@ -14,16 +14,18 @@ interface ResumeInfo {
     Duration: string;
     Description: string;
   }>;
-  Projects: Array<{
-    Name: string;
-    Description: string;
-    Technologies: string[];
-  }>;
+  Projects: Project[];
   Skills: string[];
   "Questions and Answers": Array<{
     Question: string;
     Answer: string;
   }>;
+}
+
+interface Project {
+  Name: string;
+  Description: string;
+  Technologies?: string[];  
 }
 
 const FileUploadPage: React.FC = () => {
@@ -78,7 +80,7 @@ const FileUploadPage: React.FC = () => {
         },
         timeout: 60000, // Set a longer timeout (60 seconds)
       });
-      
+
       setMessage(`${response.data.message}`);
       console.log('Response data:', response.data);
       if (response.data.resume_info) {
@@ -108,14 +110,14 @@ const FileUploadPage: React.FC = () => {
       setMessage("Please enter a username before publishing.");
       return;
     }
-  
+
     setMessage('Creating your resume website...');
-  
+
     try {
       const response = await axios.post('https://portlinkpy.vercel.app/api/create-vercel-project', {
         username
       });
-  
+
       if (response.data.deploymentUrl) {
         setPublishedUrl(response.data.deploymentUrl);
         setMessage(
@@ -130,7 +132,7 @@ const FileUploadPage: React.FC = () => {
       setMessage(`Error publishing resume: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Error publishing resume:', error);
     }
-  };  
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -173,9 +175,9 @@ const FileUploadPage: React.FC = () => {
       {uploadProgress > 0 && (
         <div className="mb-4">
           <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full" 
-              style={{width: `${uploadProgress}%`}}
+            <div
+              className="bg-blue-600 h-2.5 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
           <p className="text-sm mt-1">{uploadProgress}% Uploaded</p>
@@ -213,7 +215,12 @@ const FileUploadPage: React.FC = () => {
               <li key={index}>
                 <strong>{project.Name}</strong>
                 <p>{project.Description}</p>
-                <p><strong>Technologies:</strong> {project.Technologies.join(', ')}</p>
+                <p>
+                  <strong>Technologies:</strong>{' '}
+                  {Array.isArray(project.Technologies) ?
+                    project.Technologies.join(', ') :
+                    'No technologies specified'}
+                </p>
               </li>
             ))}
           </ul>
