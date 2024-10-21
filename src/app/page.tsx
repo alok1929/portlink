@@ -258,24 +258,24 @@ const FileUploadPage: React.FC = () => {
 
       {/* Display published URL */}
       {publishedUrl && (
-        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
-          <h3 className="font-semibold text-green-800">Your resume is live!</h3>
-          <p className="mt-2">
-            View your resume at:{' '}
-            <a
-              href={publishedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              {publishedUrl}
-            </a>
-          </p>
-          <p className="mt-2 text-sm text-gray-600">
-            Note: It may take a few minutes for your site to be fully deployed.
-          </p>
-        </div>
-      )}
+      <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
+        <h3 className="font-semibold text-green-800">Your resume is live!</h3>
+        <p className="mt-2">
+          View your resume at:{' '}
+          <a
+            href={publishedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            {publishedUrl}
+          </a>
+        </p>
+        <p className="mt-2 text-sm text-gray-600">
+          Note: It may take a few minutes for your site to be fully deployed.
+        </p>
+      </div>
+    )}
     </div>
   );
 };
